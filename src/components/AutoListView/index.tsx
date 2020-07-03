@@ -5,7 +5,7 @@ import request from '@/utils/request';
 import styles from './index.less';
 
 let currentValue: string;
-const fetchData = debounce(async function(url: string, value: string, callback: Function) {
+const fetchData = async function(url: string, value: string, callback: Function) {
   value = value || '';
   currentValue = value;
   const result = await request(`${url}`, {
@@ -16,7 +16,8 @@ const fetchData = debounce(async function(url: string, value: string, callback: 
   if (currentValue === value && typeof result === 'object' && callback) {
     callback(result);
   }
-}, 300);
+};
+const debounceFetchData = debounce(fetchData, 300);
 
 interface AutoListViewColumnProps {
   title: string;
@@ -63,12 +64,12 @@ const AutoListView: React.FC<AutoListViewProps> = props => {
   }, []);
 
   const handleSearch = (value: string) => {
-    fetchData(url, value, (data: never[]) => setData(data));
+    debounceFetchData(url, value, (data: never[]) => setData(data));
   };
 
   const handleChange = (value: string, option: any) => {
     if (isSearch && value === undefined) {
-      fetchData(url, '', (data: never[]) => setData(data));
+      debounceFetchData(url, '', (data: never[]) => setData(data));
     }
     if (onChange) {
       onChange(value, option || { value: undefined, data: {} });
